@@ -1,3 +1,5 @@
 python-terrier
 ir_datasets
 pandas
+pyspellchecker
+nltk #for porterstemmer
