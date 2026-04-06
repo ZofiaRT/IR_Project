@@ -39,14 +39,21 @@ We perform **paired t-tests** to evaluate any significant differences between th
 
 ## Repository Structure
 ```text
-ir_project/
+MedIR-Context-Balance/
 ├── .gitignore
+├── README.md                   # This file
 ├── requirements.txt            # Python dependencies for the project
-├── src/
-│   ├── data_exploration.ipynb  # Data analysis, query verbosity prep, and PyTerrier indexing 
-│   ├── experiment.ipynb        # Main evaluation notebook comparing all IR models
-│   ├── dpr_dense.py            # Dense retrieval pipeline setup (PyTerrier-DR FlexIndex)
-│   └── dpr_finetune.py         # Script for fine-tuning dense models on TREC-COVID
+└── src/
+    ├── data_exploration.ipynb  # Data analysis, query verbosity prep, and relevance judgments analysis
+    ├── experiment-new.ipynb    # Main evaluation notebook comparing all IR models (BM25, DPR, Hybrid, etc.)
+    ├── dpr_dense.py            # Dense retrieval pipeline setup (PyTerrier-DR FlexIndex)
+    ├── index_creation/         # Notebooks to build required PyTerrier indexes
+    │   ├── sparse_index.ipynb  # Builds the sparse index for BM25 and RM3
+    │   ├── dpr_index.ipynb     # Builds the general dense index (MiniLM)
+    │   └── biodpr_index.ipynb  # Builds the domain-specific dense index (PubMedBERT)
+    └── extension/              # Advanced fine-tuning scripts
+        ├── README.md           # Documentation for fine-tuning dense models
+        └── dpr_finetune.py     # Script for fine-tuning bi-encoders using TREC-COVID qrels
 ```
 
 ## Setup and Installation
@@ -59,8 +66,19 @@ pip install -r requirements.txt
 Python 3.8+, and Java are required to be able to successfully run the notebooks
 
 ## How to Run
-TODO
+**1. Data Exploration (Optional)**
+If you'd like to explore the TREC-COVID dataset, view the query verbosity analysis, and review the medical term extraction, open and run `src/data_exploration.ipynb`.
 
+**2. Build the Indexes**
+Before evaluating the models, you must build the underlying document indexes. Navigate to the `src/index_creation/` directory and run the following notebooks:
+* `sparse_index.ipynb`: Creates the sparse index required for the BM25 and RM3 baselines.
+* `dpr_index.ipynb`: Creates the dense FlexIndex for the general MiniLM retriever.
+* `biodpr_index.ipynb`: Creates the dense FlexIndex for the domain-specific PubMedBERT retriever.
+
+*Note: Dense indexing can be computationally heavy. Using a machine with a GPU is recommended.*
+
+**3. Run the Main Experiment**
+Once all indexes are built, open `src/experiment-new.ipynb`. Run this notebook to evaluate all the models (BM25, BM25 + RM3, DPR, BioDPR, and Hybrid) across the three query verbosity levels (Title, Description, and Narrative) using MAP and nDCG@10 metrics.
 
 ## Key Findings
 * **Verbosity Matters:** Providing more query context does not always improve performance. Description queries (medium length) consistently outperformed both Title (short) and Narrative (long) queries across models.
